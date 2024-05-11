@@ -61,6 +61,7 @@ repositories {
     maven { url = uri("https://repo.kyngs.xyz/public/") }
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
+    maven { url = uri("https://repo.thesimplecloud.eu/artifactory/list/gradle-release-local/") }
 }
 
 blossom {
@@ -191,6 +192,9 @@ dependencies {
 
     //NanoLimboPlugin
     compileOnly("com.github.bivashy.NanoLimboPlugin:api:1.0.8")
+
+    //simplecloud
+    compileOnly("eu.thesimplecloud.simplecloud:simplecloud-api:2.7.1")
 }
 
 tasks.withType<ProcessResources> {

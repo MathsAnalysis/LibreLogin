@@ -17,6 +17,8 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import eu.thesimplecloud.api.CloudAPI;
+import eu.thesimplecloud.api.external.ICloudModule;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -186,6 +188,10 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
             redisBungee = new VelocityRedisBungeeIntegration();
         }
         super.enable();
+        if(pluginPresent("simplecloud_plugin")){
+            ICloudModule cloudModule = CloudAPI.getInstance().getThisSidesCloudModule();
+            CloudAPI.getInstance().getEventManager().registerListener(cloudModule, new CloudListener(this));
+        }
         getLogger().info("LibreLogin version " + getVersion() + " enabled!");
     }
 

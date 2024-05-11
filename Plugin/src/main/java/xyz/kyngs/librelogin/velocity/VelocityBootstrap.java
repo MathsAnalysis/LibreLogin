@@ -37,7 +37,8 @@ import javax.inject.Inject;
                 @Dependency(id = "floodgate", optional = true),
                 @Dependency(id = "protocolize", optional = true),
                 @Dependency(id = "redisbungee", optional = true),
-                @Dependency(id = "nanolimbovelocity", optional = true)
+                @Dependency(id = "nanolimbovelocity", optional = true),
+                @Dependency(id = "simplecloud_plugin", optional = true)
         }
 )
 public class VelocityBootstrap implements LibreLoginProvider<Player, RegisteredServer> {

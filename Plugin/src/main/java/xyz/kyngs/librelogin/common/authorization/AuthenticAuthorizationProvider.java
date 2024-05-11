@@ -8,6 +8,7 @@ package xyz.kyngs.librelogin.common.authorization;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -33,14 +34,18 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
 
     private final Map<P, Boolean> unAuthorized;
     private final Map<P, String> awaiting2FA;
+    private final Map<P,Long> timeAuthorized;
     private final Cache<UUID, EmailVerifyData> emailConfirmCache;
     private final Cache<UUID, String> passwordResetCache;
+
 
     public AuthenticAuthorizationProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
         unAuthorized = new ConcurrentHashMap<>();
         awaiting2FA = new ConcurrentHashMap<>();
 
+
+        timeAuthorized = new ConcurrentHashMap<>();
         var millis = plugin.getConfiguration().get(ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION);
 
         if (millis > 0) {
@@ -69,6 +74,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     public void onExit(P player) {
         stopTracking(player);
         awaiting2FA.remove(player);
+        timeAuthorized.remove(player);
         emailConfirmCache.invalidate(platformHandle.getUUIDForPlayer(player));
         passwordResetCache.invalidate(platformHandle.getUUIDForPlayer(player));
     }
@@ -117,6 +123,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         var audience = platformHandle.getAudienceForPlayer(player);
 
         unAuthorized.put(player, user.isRegistered());
+        timeAuthorized.put(player,System.currentTimeMillis());
+        audience.sendMessage(plugin.getMessages().getMessage(user.isRegistered() ? "prompt-login" : "prompt-register"));
 
         plugin.cancelOnExit(plugin.delay(() -> {
             if (!unAuthorized.containsKey(player)) return;
@@ -132,6 +140,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
             }, limit * 1000L), player);
         }
 
+
+
         sendInfoMessage(user.isRegistered(), audience);
     }
 
@@ -145,16 +155,25 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
                 return;
             }
 
-            sendActionBar(registered, audience);
+            sendActionBar(registered, audience, player);
 
         });
 
         wrong.forEach(unAuthorized::remove);
     }
 
-    private void sendActionBar(boolean registered, Audience audience) {
+    private void sendActionBar(boolean registered, Audience audience, P player) {
+        var time = timeAuthorized.get(player);
+        if(time == null){
+            return;
+        }
+
+        var limit = plugin.getConfiguration().get(ConfigurationKeys.SECONDS_TO_AUTHORIZE);
+        long remain = (limit * 1000L)- (System.currentTimeMillis() - time);
+        int secondi = (int) remain/1000;
+
         if (plugin.getConfiguration().get(ConfigurationKeys.USE_ACTION_BAR)) {
-            audience.sendActionBar(plugin.getMessages().getMessage(registered ? "action-bar-login" : "action-bar-register"));
+            audience.sendActionBar(plugin.getMessages().getMessage(registered ? "action-bar-login" : "action-bar-register","%time%",String.valueOf(secondi)));
         }
     }
 
