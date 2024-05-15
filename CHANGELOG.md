@@ -1,4 +1,3 @@
-0.20.3 - BungeeCord bugfix
+0.20.5 - Paper Hotfix
 
-- Fix issue regarding UUIDs on Bungee
-
+- Fix a bug where players could not enter overworld from nether
