@@ -1,3 +1,3 @@
-0.20.5 - Paper Hotfix
+0.20.7 - Fix critical bungee bug
 
-- Fix a bug where players could not enter overworld from nether
+- fix bug on bungee where players lost their data
