@@ -1,3 +1,5 @@
-0.20.7 - Fix critical bungee bug
+0.21.0 - LogIt Migration | Bungee Log Spam Fix
 
-- fix bug on bungee where players lost their data
+- Add LogIt plugin migration
+- Switch to another API when Mojang timeouts
+- Fix Bungee log spam

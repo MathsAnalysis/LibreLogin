@@ -6,7 +6,7 @@ plugins {
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
-    id("xyz.kyngs.mcupload.plugin").version("0.2.4")
+    id("xyz.kyngs.mcupload.plugin").version("0.3.1")
 }
 
 tasks.withType<JavaCompile> {
@@ -39,6 +39,12 @@ mcupload {
         github {
             token = System.getenv("GITHUB_TOKEN")
             repository = "kyngs/LibreLogin"
+        }
+        discord {
+            webhookUrl = System.getenv("DISCORD_WEBHOOK_URL")
+            configureEmbed {
+                setColor(0x0398FC)
+            }
         }
     }
     datasource {
