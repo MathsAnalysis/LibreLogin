@@ -2,11 +2,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    id("com.github.johnrengelman.shadow").version("8.1.1")
+    id("io.github.goooler.shadow") version "8.1.7"
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
-    id("xyz.kyngs.mcupload.plugin").version("0.3.1")
+    id("xyz.kyngs.mcupload.plugin").version("0.3.3")
 }
 
 tasks.withType<JavaCompile> {
@@ -21,7 +21,7 @@ mcupload {
             loaders = listOf("paper", "purpur", "bungeecord", "waterfall", "velocity")
             projectId = "tL0SCXYq"
             gameVersions = listOf(
-                "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
+                "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
                 "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
                 "1.18.2", "1.18.1", "1.18",
                 "1.17.1", "1.17",
@@ -102,7 +102,7 @@ tasks.withType<ShadowJar> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -171,6 +171,8 @@ dependencies {
 
     //Geyser
     compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
+    //LuckPerms
+    compileOnly("net.luckperms:api:5.4")
 
     //Bungeecord
     compileOnly("net.md-5:bungeecord-api:1.20-R0.3-SNAPSHOT")
@@ -185,7 +187,7 @@ dependencies {
     //Paper
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper.packetevents:spigot:2.2.1")
+    libby("com.github.retrooper.packetevents:spigot:2.3.0")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
