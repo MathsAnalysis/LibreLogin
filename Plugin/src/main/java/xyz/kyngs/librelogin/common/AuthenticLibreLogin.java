@@ -321,7 +321,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             initMetrics();
         }
 
-        delay(this::checkForUpdates, 1000);
+        //delay(this::checkForUpdates, 1000);
 
         if (pluginPresent("floodgate")) {
             logger.info("Floodgate detected, enabling bedrock support...");
