@@ -158,6 +158,9 @@ dependencies {
     libby("com.github.kyngs.commands:acf-bungee:7d5bf7cac0")
     libby("com.github.kyngs.commands:acf-paper:7d5bf7cac0")
 
+    //MONGODB
+    libby("org.mongodb:mongo-java-driver:3.12.14")
+
     //Utils
     libby("com.github.ben-manes.caffeine:caffeine:3.1.8")
     libby("org.spongepowered:configurate-hocon:4.1.2")

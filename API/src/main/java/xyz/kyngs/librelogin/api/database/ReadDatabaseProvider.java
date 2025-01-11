@@ -32,6 +32,10 @@ public interface ReadDatabaseProvider {
      */
     User getByUUID(UUID uuid);
 
+
+    User getByEmail(String email);
+
+
     /**
      * This method finds a player by their premium UUID.
      *

@@ -59,8 +59,8 @@ public class ConfigurationKeys {
     );
 
     static {
-        LOBBY_DEFAULT.put("root", "lobby0");
-        LOBBY_DEFAULT.put("root", "lobby1");
+        LOBBY_DEFAULT.put("root", "lobby-1");
+        LOBBY_DEFAULT.put("root", "lobby-2");
     }
 
     public static final ConfigurationKey<Boolean> IGNORE_MAX_PLAYERS_FROM_BACKEND_PING = new ConfigurationKey<>(
@@ -71,6 +71,28 @@ public class ConfigurationKeys {
                     Sometimes this may not work as expected. In such case, you can enable this option, which will ignore the max players field obtained by pinging the backend server.
                     """,
             ConfigurateHelper::getBoolean
+    );
+
+
+    public static final ConfigurationKey<List<String>> ALLOWED_MAIL_WHILE_AUTHENTICATED= new ConfigurationKey<>(
+            "allowed-mail-while-authenticated",
+            List.of(
+                    "gmail.com",
+                    "yahoo.com",
+                    "outlook.com",
+                    "hotmail.com",
+                    "live.com",
+                    "aol.com",
+                    "yandex.com",
+                    "protonmail.com",
+                    "mail.com",
+                    "zoho.com",
+                    "gmx.com",
+                    "icloud.com",
+                    "inbox.com"
+            ),
+            "Mail domains that are allowed while the user is authenticated.",
+            ConfigurateHelper::getStringList
     );
 
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(

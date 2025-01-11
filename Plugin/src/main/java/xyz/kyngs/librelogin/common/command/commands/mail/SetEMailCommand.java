@@ -6,14 +6,15 @@
 
 package xyz.kyngs.librelogin.common.command.commands.mail;
 
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Syntax;
 import net.kyori.adventure.audience.Audience;
-import xyz.kyngs.librelogin.api.event.events.WrongPasswordEvent.AuthenticationSource;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
-import xyz.kyngs.librelogin.common.event.events.AuthenticWrongPasswordEvent;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import xyz.kyngs.librelogin.common.util.RateLimiter;
 
@@ -21,7 +22,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
-@CommandAlias("setemail")
+@CommandAlias("setemail|addmail|mail|registermail")
+
 public class SetEMailCommand<P> extends EMailCommand<P> {
 
     private final RateLimiter<UUID> limiter = new RateLimiter<>(1, TimeUnit.MINUTES);
@@ -33,27 +35,30 @@ public class SetEMailCommand<P> extends EMailCommand<P> {
     @Default
     @Syntax("{@@syntax.set-email}")
     @CommandCompletion("%autocomplete.set-email")
-    public CompletionStage<Void> onSetMail(Audience sender, P player, UUID uuid, String mail, @Single String password) {
+    public CompletionStage<Void> onSetMail(Audience sender, P player, UUID uuid, String mail) {
         return runAsync(() -> {
             var user = getUser(player);
+            if (user.getPremiumUUID() == null) {
+                sender.sendMessage(getMessage("error-premium"));
+                return;
+            }
 
-            var hashed = user.getHashedPassword();
-            var crypto = getCrypto(hashed);
-
-            if (!crypto.matches(password, hashed)) {
-                plugin.getEventProvider()
-                        .unsafeFire(plugin.getEventTypes().wrongPassword,
-                                new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.SET_EMAIL));
-                throw new InvalidCommandArgument(getMessage("error-password-wrong"));
+            if(getDatabaseProvider().getByEmail(mail) != null) {
+                sender.sendMessage(getMessage("error-mail-already-used"));
+                return;
             }
 
             if (limiter.tryAndLimit(uuid)) {
                 throw new InvalidCommandArgument(getMessage("error-mail-throttle"));
             }
+            if (mailHandler.iaAllowedMail(mail)) {
+                throw new InvalidCommandArgument(getMessage("error-mail-not-allowed"));
+            }
 
             var token = GeneralUtil.generateAlphanumericText(16);
 
             sender.sendMessage(getMessage("info-mail-sending"));
+
 
             try {
                 mailHandler.sendVerificationMail(mail, token, user.getLastNickname());

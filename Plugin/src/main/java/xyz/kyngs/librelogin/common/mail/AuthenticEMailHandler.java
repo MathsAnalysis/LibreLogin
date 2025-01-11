@@ -13,6 +13,8 @@ import xyz.kyngs.librelogin.api.mail.EmailHandler;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 
+import java.util.List;
+
 public class AuthenticEMailHandler implements EmailHandler {
 
     private final AuthenticLibreLogin<?, ?> plugin;
@@ -94,5 +96,14 @@ public class AuthenticEMailHandler implements EmailHandler {
                         .replace("%server%", plugin.getConfiguration().get(ConfigurationKeys.MAIL_SENDER))
                         .replace("%code%", token)
         );
+    }
+
+    @Override
+    public boolean iaAllowedMail(String emailString) {
+        List<String> domainList = plugin.getConfiguration().get(ConfigurationKeys.ALLOWED_MAIL_WHILE_AUTHENTICATED);
+        if(emailString == null) return false;
+        String[] email = emailString.split("@",1);
+        if(email.length != 2) return false;
+        return domainList.contains(email[1]);
     }
 }

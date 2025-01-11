@@ -38,6 +38,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     private final Cache<UUID, EmailVerifyData> emailConfirmCache;
     private final Cache<UUID, String> passwordResetCache;
 
+    private final Cache<UUID, Boolean> unConfirmedEmailCache;
+
 
     public AuthenticAuthorizationProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
@@ -61,6 +63,10 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         passwordResetCache = Caffeine.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
+
+        unConfirmedEmailCache = Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .build();
     }
 
     public Cache<UUID, EmailVerifyData> getEmailConfirmCache() {
@@ -77,6 +83,12 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         timeAuthorized.remove(player);
         emailConfirmCache.invalidate(platformHandle.getUUIDForPlayer(player));
         passwordResetCache.invalidate(platformHandle.getUUIDForPlayer(player));
+    }
+
+
+    @Override
+    public boolean isAwaitingEmailConfirmation(P player) {
+        return unConfirmedEmailCache.getIfPresent(platformHandle.getUUIDForPlayer(player)) != null;
     }
 
     @Override
@@ -101,6 +113,13 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         plugin.getDatabaseProvider().updateUser(user);
 
         var audience = platformHandle.getAudienceForPlayer(player);
+
+        /*if (user.getEmail() == null && reason != AuthenticatedEvent.AuthenticationReason.PREMIUM) {
+            //require email : You must have an email to play on this server.
+            audience.sendMessage(plugin.getMessages().getMessage("require-email"));
+            unConfirmedEmailCache.put(platformHandle.getUUIDForPlayer(player), true);
+            return;
+        }*/
 
         audience.clearTitle();
         audience.sendActionBar(Component.empty());
@@ -178,7 +197,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     }
 
     private void sendInfoMessage(boolean registered, Audience audience) {
-        audience.sendMessage(plugin.getMessages().getMessage(registered ? "prompt-login" : "prompt-register"));
+        //audience.sendMessage(plugin.getMessages().getMessage(registered ? "prompt-login" : "prompt-register"));
         if (!plugin.getConfiguration().get(ConfigurationKeys.USE_TITLES)) return;
         var toRefresh = plugin.getConfiguration().get(ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION);
         //noinspection UnstableApiUsage

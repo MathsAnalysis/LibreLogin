@@ -47,4 +47,14 @@ public interface EmailHandler {
      * @param username The username of the user.
      */
     void sendVerificationMail(String email, String token, String username);
+
+
+
+    /**
+     * This method checks if the email is valid.
+     *
+     * @param email The email to check.
+     * @return If the email is valid.
+     */
+    boolean iaAllowedMail(String email);
 }

@@ -11,8 +11,11 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Syntax;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
+import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.util.concurrent.CompletionStage;
 
@@ -38,9 +41,13 @@ public class VerifyEMailCommand<P> extends EMailCommand<P> {
                 throw new InvalidCommandArgument(getMessage("error-wrong-mail-verify"));
             }
             plugin.getAuthorizationProvider().getEmailConfirmCache().invalidate(user.getUuid());
-
             user.setEmail(cached.email());
             getDatabaseProvider().updateUser(user);
+            if (getAuthorizationProvider().isAwaitingEmailConfirmation(player)) {
+                sender.clearTitle();
+                sender.sendActionBar(Component.empty());
+                plugin.authorize(player, user, sender);
+            }
 
             sender.sendMessage(getMessage("info-mail-verified"));
         });

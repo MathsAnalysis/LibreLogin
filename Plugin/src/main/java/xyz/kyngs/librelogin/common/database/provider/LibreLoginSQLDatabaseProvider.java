@@ -67,6 +67,17 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
     }
 
     @Override
+    public User getByEmail(String email) {
+        plugin.reportMainThread();
+        return connector.runQuery(connection -> {
+            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE email=?");
+            ps.setString(1, email);
+            var rs = ps.executeQuery();
+            return getUserFromResult(rs);
+        });
+    }
+
+    @Override
     public Collection<User> getAllUsers() {
         plugin.reportMainThread();
         return connector.runQuery(connection -> {

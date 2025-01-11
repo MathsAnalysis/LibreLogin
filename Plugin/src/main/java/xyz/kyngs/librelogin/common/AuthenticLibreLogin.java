@@ -24,10 +24,7 @@ import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.api.database.*;
-import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
-import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
-import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
-import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
+import xyz.kyngs.librelogin.api.database.connector.*;
 import xyz.kyngs.librelogin.api.integration.LimboIntegration;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
@@ -47,10 +44,8 @@ import xyz.kyngs.librelogin.common.crypto.LogITMessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
-import xyz.kyngs.librelogin.common.database.connector.AuthenticMySQLDatabaseConnector;
-import xyz.kyngs.librelogin.common.database.connector.AuthenticPostgreSQLDatabaseConnector;
-import xyz.kyngs.librelogin.common.database.connector.AuthenticSQLiteDatabaseConnector;
-import xyz.kyngs.librelogin.common.database.connector.DatabaseConnectorRegistration;
+import xyz.kyngs.librelogin.common.database.connector.*;
+import xyz.kyngs.librelogin.common.database.provider.LibreLoginMongoDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginMySQLDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginPostgreSQLDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabaseProvider;
@@ -460,11 +455,19 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     private void setupDB() {
         registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticMongoDatabaseConnector(this, prefix),
+                        AuthenticMongoDatabaseConnector.Configuration.class,
+                        "mongoDB"
+                ),
+                MongoDatabaseConnector.class);
+
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
                         prefix -> new AuthenticMySQLDatabaseConnector(this, prefix),
                         AuthenticMySQLDatabaseConnector.Configuration.class,
                         "mysql"
                 ),
                 MySQLDatabaseConnector.class);
+
         registerDatabaseConnector(new DatabaseConnectorRegistration<>(
                         prefix -> new AuthenticSQLiteDatabaseConnector(this, prefix),
                         AuthenticSQLiteDatabaseConnector.Configuration.class,
@@ -478,6 +481,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 ),
                 PostgreSQLDatabaseConnector.class);
 
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginMongoDatabaseProvider(connector, this),
+                "librelogin-mongo",
+                MongoDatabaseConnector.class
+        ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new LibreLoginMySQLDatabaseProvider(connector, this),
                 "librelogin-mysql",

@@ -40,9 +40,10 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         fetchers = new ArrayList<>(3);
 
-        fetchers.add(this::getUserFromMojang);
+        fetchers.add(this::getUserFromMineTools);
         fetchers.add(this::getUserFromPlayerDB);
-        //fetchers.add(this::getUserFromAshcon); //Momentarily disabled, as it's unreliable. See https://github.com/Electroid/mojang-api/issues/79
+        fetchers.add(this::getUserFromAshcon);
+        fetchers.add(this::getUserFromMojang);
     }
 
     @Override
@@ -83,6 +84,32 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         return result;
     }
+
+    private PremiumUser getUserFromMineTools(String name) throws PremiumException {
+        try {
+            plugin.reportMainThread();
+            var connection = (HttpURLConnection) new URL("https://api.minetools.eu/uuid/" + name).openConnection();
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            switch (connection.getResponseCode()) {
+                case 200 -> {
+                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+                    var uuid = data.get("id");
+                    return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("username").getAsString(), data.get("username").getAsString().equalsIgnoreCase(name));
+                }
+                case 404 -> {
+                    return null;
+                }
+                case 429 ->
+                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+            }
+        } catch (IOException e) {
+            throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, e);
+        }
+    }
+
 
     private PremiumUser getUserFromAshcon(String name) throws PremiumException {
         try {

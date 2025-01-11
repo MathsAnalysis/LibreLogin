@@ -23,6 +23,7 @@ public class CloudListener implements IListener {
 
     private void addServer(ICloudService cloudService){
         if (cloudService.isProxy()) return;
+
         var server = plugin.providePlatformHandle().getServer(cloudService.getName(), true);
         for (Map.Entry<String, String> entry : plugin.getConfiguration().get(ConfigurationKeys.LOBBY).entries()) {
             String forced = entry.getKey();

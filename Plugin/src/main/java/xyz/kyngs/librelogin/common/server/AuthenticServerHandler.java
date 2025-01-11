@@ -59,14 +59,14 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
         if (plugin.getConfiguration().get(ConfigurationKeys.PING_SERVERS))
             plugin.getLogger().info("Pinging servers...");
 
-        for (String limbo : plugin.getConfiguration().get(LIMBO)) {
-            var server = handle.getServer(limbo, true);
-            if (server != null) {
-                registerLimboServer(server);
-            } else {
-                plugin.getLogger().warn("Limbo server/world " + limbo + " not found!");
-            }
-        }
+//        for (String limbo : plugin.getConfiguration().get(LIMBO)) {
+//            var server = handle.getServer(limbo, true);
+//            if (server != null) {
+//                registerLimboServer(server);
+//            } else {
+//                plugin.getLogger().warn("Limbo server/world " + limbo + " not found!");
+//            }
+//        }
 
         plugin.getConfiguration().get(ConfigurationKeys.LOBBY).forEach((forced, server) -> {
             var s = handle.getServer(server, false);

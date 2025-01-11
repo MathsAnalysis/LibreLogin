@@ -13,6 +13,9 @@ dependencies {
     compileOnly("net.kyori:adventure-platform-bungeecord:4.1.2")
     compileOnly("com.google.guava:guava:30.0-jre")
 
+    //MONGODB
+    compileOnly("org.mongodb:mongodb-driver-sync:4.11.1")
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }

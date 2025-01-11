@@ -52,8 +52,7 @@ public class VelocityNanoLimboIntegration extends NanoLimboIntegration<Registere
             case NONE -> FORWARDING_FACTORY.none();
             case LEGACY -> FORWARDING_FACTORY.legacy();
             case MODERN -> FORWARDING_FACTORY.modern(velocityConfiguration.getForwardingSecret());
-            case BUNGEEGUARD ->
-                    FORWARDING_FACTORY.bungeeGuard(Collections.singleton(new String(velocityConfiguration.getForwardingSecret(), StandardCharsets.UTF_8)));
+            case BUNGEEGUARD -> FORWARDING_FACTORY.bungeeGuard(Collections.singleton(new String(velocityConfiguration.getForwardingSecret(), StandardCharsets.UTF_8)));
         };
     }
 
