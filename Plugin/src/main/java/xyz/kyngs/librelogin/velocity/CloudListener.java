@@ -20,7 +20,6 @@ public class CloudListener implements IListener {
         CloudAPI.getInstance().getCloudServiceManager().getAllCachedObjects().forEach(this::addServer);
     }
 
-
     private void addServer(ICloudService cloudService){
         if (cloudService.isProxy()) return;
 
