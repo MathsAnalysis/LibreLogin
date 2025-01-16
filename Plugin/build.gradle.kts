@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.github.goooler.shadow") version "8.1.8"
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
@@ -69,6 +69,9 @@ repositories {
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
     maven { url = uri("https://repo.thesimplecloud.eu/artifactory/list/gradle-release-local/") }
+    maven { url = uri("https://repo.simplecloud.app/snapshots") }
+    maven { url = uri("https://buf.build/gen/maven") }
+
 }
 
 blossom {
@@ -103,7 +106,7 @@ tasks.withType<ShadowJar> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(23))
     }
 }
 
@@ -124,13 +127,13 @@ libby {
 configurations.all {
     // I hate this, but it needs to be done as bungeecord does not support newer versions of adventure, and packetevents includes it
     resolutionStrategy {
-        force("net.kyori:adventure-text-minimessage:4.14.0")
-        force("net.kyori:adventure-text-serializer-gson:4.14.0")
-        force("net.kyori:adventure-text-serializer-legacy:4.14.0")
-        force("net.kyori:adventure-text-serializer-json:4.14.0")
-        force("net.kyori:adventure-api:4.14.0")
-        force("net.kyori:adventure-nbt:4.14.0")
-        force("net.kyori:adventure-key:4.14.0")
+        force("net.kyori:adventure-text-minimessage:4.18.0")
+        force("net.kyori:adventure-text-serializer-gson:4.18.0")
+        force("net.kyori:adventure-text-serializer-legacy:4.18.0")
+        force("net.kyori:adventure-text-serializer-json:4.18.0")
+        force("net.kyori:adventure-api:4.18.0")
+        force("net.kyori:adventure-nbt:4.18.0")
+        force("net.kyori:adventure-key:4.18.0")
     }
 }
 
@@ -170,7 +173,7 @@ dependencies {
     libby("org.bouncycastle:bcprov-jdk18on:1.77")
     libby("org.apache.commons:commons-email:1.6.0")
     // DO NOT UPGRADE TO 4.15.0 OR ABOVE BEFORE TESTING WATERFALL AND BUNGEECORD COMPATIBILITY!!!
-    libby("net.kyori:adventure-text-minimessage:4.14.0")
+    libby("net.kyori:adventure-text-minimessage:4.18.0")
     libby("com.github.kyngs:LegacyMessage:0.2.0")
 
     //Geyser
@@ -179,9 +182,9 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
 
     //Bungeecord
-    compileOnly("net.md-5:bungeecord-api:1.20-R0.3-SNAPSHOT")
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.1-SNAPSHOT")
     compileOnly("com.github.limework.redisbungee:RedisBungee-API:0.7.2")
-    libby("net.kyori:adventure-platform-bungeecord:4.1.2")
+    libby("net.kyori:adventure-platform-bungeecord:4.3.4")
 
     //BStats
     libby("org.bstats:bstats-velocity:3.0.2")
@@ -191,7 +194,7 @@ dependencies {
     //Paper
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.4.0")
+    libby("com.github.retrooper:packetevents-spigot:2.5.0")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
@@ -206,7 +209,8 @@ dependencies {
     compileOnly("com.github.bivashy.NanoLimboPlugin:api:1.0.8")
 
     //simplecloud
-    compileOnly("eu.thesimplecloud.simplecloud:simplecloud-api:2.7.1")
+    compileOnly("app.simplecloud.controller:controller-api:0.0.30-dev.1748933")
+
 }
 
 tasks.withType<ProcessResources> {
