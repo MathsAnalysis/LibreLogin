@@ -209,7 +209,7 @@ dependencies {
     compileOnly("com.github.bivashy.NanoLimboPlugin:api:1.0.8")
 
     //simplecloud
-    compileOnly("app.simplecloud.controller:controller-api:0.0.30-dev.1748933")
+    compileOnly("eu.thesimplecloud.simplecloud:simplecloud-api:2.8.1")
 
 }
 
