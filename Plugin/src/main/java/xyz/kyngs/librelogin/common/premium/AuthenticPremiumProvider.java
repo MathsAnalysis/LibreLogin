@@ -8,7 +8,12 @@ package xyz.kyngs.librelogin.common.premium;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
@@ -41,8 +46,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         fetchers = new ArrayList<>(3);
 
         fetchers.add(this::getUserFromMojang);
-        fetchers.add(this::getUserFromPlayerDB);
         fetchers.add(this::getUserFromMinetools);
+        fetchers.add(this::getUserFromPlayerDB);
         //fetchers.add(this::getUserFromAshcon); //Momentarily disabled, as it's unreliable. See https://github.com/Electroid/mojang-api/issues/79
     }
 
@@ -197,43 +202,60 @@ public class AuthenticPremiumProvider implements PremiumProvider {
     }
 
     private PremiumUser getUserFromMojang(String name) throws PremiumException {
-        try {
-            plugin.reportMainThread();
-            var connection = (HttpURLConnection) new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openConnection();
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                .build();
 
-            return switch (connection.getResponseCode()) {
-                case 429 ->
-                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+
+        Request request = new Request.Builder()
+                .url("https://api.mojang.com/users/profiles/minecraft/" + name)
+                .addHeader("User-Agent", "LibreLogin/1.0")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            int responseCode = response.code();
+
+            return switch (responseCode) {
+                case 429 -> throw new PremiumException(
+                        PremiumException.Issue.THROTTLED,
+                        response.body() != null ? response.body().string() : "Too many requests"
+                );
                 case 204, 404 -> null;
                 case 200 -> {
-                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+                    if (response.body() == null) {
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, "Empty response body");
+                    }
+                    String responseBody = response.body().string();
+                    JsonObject data = AuthenticLibreLogin.GSON.fromJson(responseBody, JsonObject.class);
 
-                    var id = data.get("id").getAsString();
-                    var demo = data.get("demo");
+                    String id = data.get("id").getAsString();
+                    JsonElement demo = data.get("demo");
 
                     yield demo != null ? null : new PremiumUser(
                             GeneralUtil.fromUnDashedUUID(id),
                             data.get("name").getAsString(),
-                            true // Mojang API is always authoritative
+                            true
                     );
                 }
-                case 403 -> {
-                    if ("text/html".equals(connection.getContentType())) {
-                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
-                    }
-                    throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
-                }
-                case 500 ->
-                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
-                default ->
-                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 403 -> throw new PremiumException(
+                        PremiumException.Issue.SERVER_EXCEPTION,
+                        response.body() != null ? response.body().string() : "Forbidden"
+                );
+                case 500 -> throw new PremiumException(
+                        PremiumException.Issue.SERVER_EXCEPTION,
+                        response.body() != null ? response.body().string() : "Internal server error"
+                );
+                default -> throw new PremiumException(
+                        PremiumException.Issue.UNDEFINED,
+                        response.body() != null ? response.body().string() : "Unexpected error: " + responseCode
+                );
             };
         } catch (SocketTimeoutException te) {
             throw new PremiumException(PremiumException.Issue.THROTTLED, "Mojang API timed out");
         } catch (IOException e) {
-            throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
+            throw new PremiumException(PremiumException.Issue.UNDEFINED, e.getMessage());
         }
     }
 

@@ -205,6 +205,10 @@ dependencies {
     implementation("xyz.kyngs.libby:libby-bungee:1.5.0")
     implementation("xyz.kyngs.libby:libby-paper:1.5.0")
 
+    //OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     //NanoLimboPlugin
     compileOnly("com.github.bivashy.NanoLimboPlugin:api:1.0.8")
 
