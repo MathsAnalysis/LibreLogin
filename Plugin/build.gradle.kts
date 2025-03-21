@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "9.0.0-beta8"
+    id("io.github.goooler.shadow") version "8.1.8"
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
@@ -104,7 +104,7 @@ tasks.withType<ShadowJar> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(23))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
