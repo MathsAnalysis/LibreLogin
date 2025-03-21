@@ -17,6 +17,8 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import eu.thesimplecloud.api.CloudAPI;
+import eu.thesimplecloud.api.external.ICloudModule;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -34,6 +36,7 @@ import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
 import xyz.kyngs.librelogin.velocity.integration.VelocityNanoLimboIntegration;
+import xyz.kyngs.librelogin.velocity.integration.cloud.SimpleCloudIntegration;
 
 import java.io.File;
 import java.io.InputStream;
@@ -80,7 +83,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     }
 
     @Override
-    protected PlatformHandle<Player, RegisteredServer> providePlatformHandle() {
+    public PlatformHandle<Player, RegisteredServer> providePlatformHandle() {
         return new VelocityPlatformHandle(this);
     }
 
@@ -186,6 +189,10 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
             redisBungee = new VelocityRedisBungeeIntegration();
         }
         super.enable();
+        if(pluginPresent("simplecloud_plugin")){
+            ICloudModule cloudModule = CloudAPI.getInstance().getThisSidesCloudModule();
+            CloudAPI.getInstance().getEventManager().registerListener(cloudModule, new SimpleCloudIntegration(this));
+        }
         getLogger().info("LibreLogin version " + getVersion() + " enabled!");
     }
 

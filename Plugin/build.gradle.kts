@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.8"
+    id("com.gradleup.shadow") version "9.0.0-beta8"
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
@@ -68,6 +68,8 @@ repositories {
     maven { url = uri("https://jitpack.io/") }
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
+    maven { url = uri("https://repo.thesimplecloud.eu/artifactory/list/gradle-release-local/") }
+    maven { url = uri("https://repo.simplecloud.app/snapshots") }
 }
 
 blossom {
@@ -102,7 +104,7 @@ tasks.withType<ShadowJar> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(23))
     }
 }
 
@@ -200,6 +202,7 @@ dependencies {
 
     //NanoLimboPlugin
     compileOnly("com.github.bivashy.NanoLimboPlugin:api:1.0.8")
+    compileOnly("eu.thesimplecloud.simplecloud:simplecloud-api:2.8.1")
 }
 
 tasks.withType<ProcessResources> {
