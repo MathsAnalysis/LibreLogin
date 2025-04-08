@@ -29,32 +29,23 @@ public class SimpleCloudIntegration implements IListener {
             String forced = entry.getKey();
             String serverName = entry.getValue();
             if (!cloudService.getName().contains(serverName)) continue;
-            if (server == null) {
-                plugin.getLogger().warn("Lobby server/world " + cloudService.getName() + " not found!");
-                return;
-            }
+            if (server == null) return;
             plugin.getServerHandler().registerLobbyServer(server, forced);
-            plugin.getLogger().info("Registered server " + cloudService.getName() + " with forced " + forced);
+            plugin.getLogger().info("Registered server " + cloudService.getName() + " with forced root");
             return;
         }
 
         if (cloudService.getGroupName().equals("lobby")) {
-            if (server == null) {
-                plugin.getLogger().warn("Lobby server/world " + cloudService.getName() + " not found!");
-                return;
-            }
+            if (server == null) return;
             plugin.getServerHandler().registerLobbyServer(server);
             plugin.getLogger().info("Registered server " + cloudService.getName() + " with forced root");
             return;
         }
 
         if (cloudService.getGroupName().equals("auth")) {
-            if (server == null) {
-                plugin.getLogger().warn("Limbo server/world " + cloudService.getName() + " not found!");
-                return;
-            }
+            if (server == null) return;
             plugin.getServerHandler().registerLimboServer(server);
-            plugin.getLogger().info("Registered server " + cloudService.getName() + " as limbo");
+            plugin.getLogger().info("Registered server " + cloudService.getName() + " as limbo server");
         }
     }
 
@@ -69,8 +60,10 @@ public class SimpleCloudIntegration implements IListener {
         if(event.getCloudService().getState() != ServiceState.CLOSED)  return;
         ICloudService cloudService = event.getCloudService();
         if (cloudService.isProxy()) return;
+
         var server = plugin.providePlatformHandle().getServer(cloudService.getName(), true);
         if (server == null) return;
+
         for (Map.Entry<String, String> entry : plugin.getConfiguration().get(ConfigurationKeys.LOBBY).entries()) {
             String forced = entry.getKey();
             String serverName = entry.getValue();
@@ -79,6 +72,7 @@ public class SimpleCloudIntegration implements IListener {
                 return;
             }
         }
+
         if (cloudService.getGroupName().equals("lobby")) {
             plugin.getServerHandler().getLobbyServers().get("root").remove(server);
             return;
